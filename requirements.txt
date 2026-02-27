@@ -1,0 +1,7 @@
+typer>=0.9
+pyfaidx>=0.8
+numpy
+scipy
+fisher
+pyx
+

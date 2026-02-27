@@ -1,0 +1,13 @@
+name	motif
+motif_1	TGGTGG
+motif_2	GGTGGG
+motif_3	GTGGTG
+motif_4	GTGGGG
+motif_5	GTGTGG
+motif_6	GGTGTG
+motif_7	TGTGGG
+motif_8	GGTGGT
+motif_9	GTGGGT
+motif_10	TGGGGT
+motif_11	GGGGGT
+motif_12	TGGGGG
