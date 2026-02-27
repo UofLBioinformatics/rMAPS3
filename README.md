@@ -10,10 +10,9 @@ Production-oriented Python 3 refactor of the original rMAPS motif-mapping pipeli
   - motif-map generation (`se`, `a3ss`, `a5ss`, `ri`, `mxe`)
   - MISO-to-rMATS conversion
   - exon-set generation
-- Cross-platform-safe multiprocessing flow in event scripts.
 - Output export fallbacks:
-  - PDF: native PyX output, then PNG-to-PDF fallback if needed
-  - PNG: native Ghostscript path, then PDF-to-PNG fallback via `pypdfium2`
+  - PDF export
+  - PNG export with fallback support when Ghostscript is unavailable
 
 ## Requirements
 
@@ -48,10 +47,10 @@ Important:
 ## Project Structure
 
 - `cli.py`: primary user entrypoint
-- `motif_map_core.py`: centralized routing/execution for event engines and converters
+- `motif_map_core.py`: centralized routing/execution for event workflows and converters
 - `genome_access.py`: shared `pyfaidx` sequence fetch layer
-- `drawutils.py`: plotting helpers and export fallback logic
-- `legacy/`: event-specific motif engines (`motifMap*_MP.py`)
+- `drawutils.py`: plotting/export helpers
+- `legacy/`: event-specific motif scripts (`motifMap*_MP.py`)
 - `bin/`: converter/util scripts
 - `tests/`: smoke and integration test runners
 
@@ -162,9 +161,8 @@ powershell -ExecutionPolicy Bypass -File tests/run_legacy_se_matrix.ps1
 ## Operational Notes
 
 - Use the CLI (`cli.py`) as the public interface.
-- Legacy scripts under `legacy/` are internal engines; direct invocation is not recommended.
+- Scripts under `legacy/` are internal implementation details; use the CLI for production runs.
 - `--fasta-root` is the canonical argument; `--fastaRoot` is accepted for compatibility.
-- `__pycache__` and genome data contents are ignored in git (folder skeleton retained with `.gitkeep`).
 
 ## Troubleshooting
 
@@ -175,12 +173,10 @@ powershell -ExecutionPolicy Bypass -File tests/run_legacy_se_matrix.ps1
   - Verify `bin/miso2rMATS.*.pl` scripts exist.
 - PNG files missing:
   - Native Ghostscript export may be unavailable.
-  - Ensure `pypdfium2` is installed for PNG fallback from PDF.
-- Pylance warnings for dynamic globals in legacy files:
-  - Some globals are initialized at runtime by `setup_runtime()`; this is expected in legacy engines.
+  - Install optional rendering dependencies from `requirements.txt`.
 
 ## Migration Status
 
-- Fully migrated user surface: CLI/core/genome access/testing.
-- Legacy event logic is retained for behavioral parity and gradual modernization.
+- The CLI and shared runtime are Python 3-ready for production usage.
+- Event-specific scripts are retained for behavior compatibility across event types.
 
