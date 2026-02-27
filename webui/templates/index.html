@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rMAPS - Motif MAP</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>rMAPS - Motif MAP</h1>
+            <p>Local web interface for motif enrichment analysis</p>
+        </div>
+
+        <form id="analysisForm" enctype="multipart/form-data">
+            <fieldset>
+                <legend>1. Select Analysis Parameters</legend>
+
+                <div class="form-group">
+                    <label for="eventType">Alternative Splicing Event Type *</label>
+                    <select id="eventType" name="event_type" required>
+                        <option value="">-- Choose Event Type --</option>
+                        <option value="se">SE: Skipped Exon</option>
+                        <option value="mxe">MXE: Mutually Exclusive Exon</option>
+                        <option value="a5ss">A5SS: Alternative 5' Splice Site</option>
+                        <option value="a3ss">A3SS: Alternative 3' Splice Site</option>
+                        <option value="ri">RI: Retained Intron</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="genome">Genome Assembly *</label>
+                    <select id="genome" name="genome" required>
+                        <option value="">-- Loading Genomes --</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>2. Upload Input Data</legend>
+
+                <div class="form-group">
+                    <label>Input Type *</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="input_type" value="rmats" checked> rMATS Output File</label>
+                        <label><input type="radio" name="input_type" value="miso"> MISO Output File</label>
+                        <label><input type="radio" name="input_type" value="coordinates"> User Coordinate Files</label>
+                    </div>
+                </div>
+
+                <div id="rmatsInput" class="input-section">
+                    <div class="form-group">
+                        <label for="rmatsFile">rMATS Output File *</label>
+                        <input type="file" id="rmatsFile" name="rmats_file" accept=".txt" required>
+                    </div>
+                </div>
+
+                <div id="misoInput" class="input-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="misoFile">MISO Output File *</label>
+                        <input type="file" id="misoFile" name="miso_file" accept=".txt,.miso_bf">
+                    </div>
+                </div>
+
+                <div id="coordinatesInput" class="input-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="upFile">Upregulated Exons *</label>
+                        <input type="file" id="upFile" name="up_file" accept=".txt">
+                    </div>
+                    <div class="form-group">
+                        <label for="dnFile">Downregulated Exons *</label>
+                        <input type="file" id="dnFile" name="down_file" accept=".txt">
+                    </div>
+                    <div class="form-group">
+                        <label for="bgFile">Background Exons *</label>
+                        <input type="file" id="bgFile" name="bg_file" accept=".txt">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>3. Select RBP Motifs</legend>
+
+                <div class="form-group">
+                    <label for="knownMotifs">Known RBP Motifs File *</label>
+                    <input type="file" id="knownMotifs" name="known_motifs_file" accept=".txt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="customMotifs">Custom Motifs (Optional)</label>
+                    <input type="file" id="customMotifs" name="motifs_file" accept=".txt">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>4. Analysis Parameters (Optional)</legend>
+
+                <div class="form-group">
+                    <label for="window">Sliding Window Size</label>
+                    <input type="number" id="window" name="window" value="50" min="10" max="200">
+                </div>
+
+                <div class="form-group">
+                    <label for="step">Window Step Size</label>
+                    <input type="number" id="step" name="step" value="1" min="1" max="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="intron">Intron Region Length</label>
+                    <input type="number" id="intron" name="intron" value="250" min="50" max="500">
+                </div>
+
+                <div class="form-group">
+                    <label for="exon">Exon Region Length</label>
+                    <input type="number" id="exon" name="exon" value="50" min="10" max="200">
+                </div>
+
+                <div class="form-group">
+                    <label for="fdr">FDR Cutoff</label>
+                    <input type="number" id="fdr" name="fdr" value="0.05" min="0" max="1" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="deltaPsi">PSI Difference Cutoff</label>
+                    <input type="number" id="deltaPsi" name="delta_psi" value="0.05" min="0" max="1" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="label">RBP Label</label>
+                    <input type="text" id="label" name="label" value="RBP">
+                </div>
+            </fieldset>
+
+            <div class="form-actions">
+                <button type="submit" id="submitBtn">Run Analysis</button>
+                <button type="button" id="quickTestBtn" class="secondary">Run One-Click Test</button>
+                <button type="reset">Reset Form</button>
+            </div>
+            <div class="form-actions" style="margin-top: 10px;">
+                <select id="recentJobsSelect">
+                    <option value="">-- Recent Jobs --</option>
+                </select>
+                <input type="text" id="existingJobId" placeholder="Existing Job ID (e.g. 73216eef)">
+                <button type="button" id="loadJobBtn" class="secondary">Load Existing Job</button>
+            </div>
+        </form>
+
+        <div id="results" style="display: none;">
+            <h2>Analysis Results</h2>
+            <p>Job ID: <code id="jobId"></code></p>
+            <p>Status: <span id="status"></span></p>
+            <div id="liveLogsWrap">
+                <h3>Live Logs</h3>
+                <pre id="liveLogs" aria-live="polite"></pre>
+            </div>
+            <div class="form-actions">
+                <button type="button" id="backBtn">Back to Main Menu</button>
+            </div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # rMAPS Refactored
 
-Production-oriented Python 3 refactor of the original rMAPS motif-mapping pipeline.
+A Python 3 refactor of the original rMAPS motif-mapping pipeline.
 
 ## What This Project Provides
 
@@ -80,6 +80,35 @@ python cli.py exon-sets --help
 python cli.py exon-sets se --help
 ```
 
+## Web UI (Local)
+
+Run the local web server:
+
+```bash
+python run_web.py
+```
+
+Open:
+
+- `http://127.0.0.1:5000`
+
+### Web UI Features
+
+- Submit motif-map jobs for `SE`, `A3SS`, `A5SS`, `RI`, `MXE`
+- Input modes:
+  - rMATS upload
+  - MISO upload
+  - user coordinate files (`up`, `down`, `bg`)
+- Live job status and live run logs
+- One-click local test job
+- Result file listing per job output folder
+
+### Web UI Environment Variables
+
+- `RMAPS_FASTA_ROOT`: FASTA root directory (default: `genomedata/`)
+- `RMAPS_RESULTS_DIR`: job output directory (default: `results/`)
+- `RMAPS_QUICKTEST_DIR`: one-click test data directory (default: `testData/`)
+
 ### Example: SE Motif Map from rMATS
 
 ```bash
@@ -152,6 +181,7 @@ bash tests/run_all_events.sh
 ## Operational Notes
 
 - Use the CLI (`cli.py`) as the public interface.
+- For local browser-based runs, use `run_web.py`.
 - Scripts under `legacy/` are internal implementation details; use the CLI for production runs.
 - `--fasta-root` is the canonical argument; `--fastaRoot` is accepted for compatibility.
 
@@ -165,5 +195,4 @@ bash tests/run_all_events.sh
 - PNG files missing:
   - Native Ghostscript export may be unavailable.
   - Install optional rendering dependencies from `requirements.txt`.
-
 
