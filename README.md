@@ -10,9 +10,6 @@ Production-oriented Python 3 refactor of the original rMAPS motif-mapping pipeli
   - motif-map generation (`se`, `a3ss`, `a5ss`, `ri`, `mxe`)
   - MISO-to-rMATS conversion
   - exon-set generation
-- Output export fallbacks:
-  - PDF export
-  - PNG export with fallback support when Ghostscript is unavailable
 
 ## Requirements
 
@@ -152,12 +149,6 @@ Full event matrix:
 bash tests/run_all_events.sh
 ```
 
-Windows PowerShell SE legacy matrix:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tests/run_legacy_se_matrix.ps1
-```
-
 ## Operational Notes
 
 - Use the CLI (`cli.py`) as the public interface.
@@ -175,8 +166,4 @@ powershell -ExecutionPolicy Bypass -File tests/run_legacy_se_matrix.ps1
   - Native Ghostscript export may be unavailable.
   - Install optional rendering dependencies from `requirements.txt`.
 
-## Migration Status
-
-- The CLI and shared runtime are Python 3-ready for production usage.
-- Event-specific scripts are retained for behavior compatibility across event types.
 
