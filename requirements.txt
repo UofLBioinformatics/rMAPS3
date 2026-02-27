@@ -4,4 +4,6 @@ numpy
 scipy
 fisher
 pyx
+pypdfium2
+Pillow
 

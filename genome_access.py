@@ -24,7 +24,7 @@ def load_genome(build: str, base_dir: str) -> Fasta:
 
 def fetch_seq(fasta: Fasta, strand: str, chrom: str, start: int, end: int) -> str:
     """
-    Fetch sequence from a pyfaidx Fasta, mimicking the legacy pygr behavior:
+    Fetch sequence from a pyfaidx Fasta, matching legacy sequence behavior:
     - 0-based, end-exclusive slicing
     - reverse-complement on '-' strand
     - on any error, return a string of Ns of the requested length

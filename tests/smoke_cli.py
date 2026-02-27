@@ -7,7 +7,7 @@ without crashing on very small inputs.
 
 Run from the project root with:
 
-    python tests_smoke.py
+    python tests/smoke_cli.py
 """
 
 from pathlib import Path
@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 PYTHON = sys.executable
 
 
@@ -48,4 +48,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
