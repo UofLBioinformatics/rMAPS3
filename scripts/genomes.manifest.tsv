@@ -1,0 +1,19 @@
+# genome	url	sha256
+araTha1	https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-62/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz	80a13166003333ba4982b57abdb3d2b62037bc831f4da29ea378c1b776fff8e2
+bosTau9	https://hgdownload.soe.ucsc.edu/goldenPath/bosTau9/bigZips/bosTau9.fa.gz	e2aeb7618184d06b1c798dac095cc711912adf59f642deaeba8a17a584236d29
+ce11	https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz	b5f80e37d22eb8f1cce1efff09a7e2e2ac2b6c73650f674c41c0b2e281c97241
+danRer10	https://hgdownload.soe.ucsc.edu/goldenPath/danRer10/bigZips/danRer10.fa.gz	efba7c81f0dc1616ddee08c81c3b5247207cadbdc9809b941e920ac074cbc5e4
+danRer11	https://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/danRer11.fa.gz	b03819292b480ea65046e0c1a7140ed5a67f6e723fb76318ce941946f636c061
+dm3	https://hgdownload.soe.ucsc.edu/goldenPath/dm3/bigZips/dm3.fa.gz	d623d985911191982f26d38eb04c681fe0fc6b0c1808404c62d0450cb4e47065
+dm6	https://hgdownload.soe.ucsc.edu/goldenPath/dm6/bigZips/dm6.fa.gz	2fcace3b24c50300d8ced6ad8fb465ac51cb4820cc20ad6ff801aabd7046aa82
+galGal5	https://hgdownload.soe.ucsc.edu/goldenPath/galGal5/bigZips/galGal5.fa.gz	666bfde40f9cab444dca98461c84ddfc4bb58551461e23eee22fe1283c636dc0
+galGal6	https://hgdownload.soe.ucsc.edu/goldenPath/galGal6/bigZips/galGal6.fa.gz	1f390981680d610be599f8a1b02754bfd583aba8de604c20cf646ce64103d18d
+hg19	https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz	ac73947d38df63ccb00724520a5c31d880c1ca423702ca7ccb7e6c2182a362d9
+hg38	https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz	c1dd87068c254eb53d944f71e51d1311964fce8de24d6fc0effc9c61c01527d4
+mm10	https://hgdownload.soe.ucsc.edu/goldenPath/mm10/bigZips/mm10.fa.gz	2e5e57b19d65e896435c14190b30036f579f9882d90ef82430e1a37a0d671f71
+oSa7	https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-62/fasta/oryza_sativa/dna/Oryza_sativa.IRGSP-1.0.dna.toplevel.fa.gz	abe7b2ecd9eb545f106886063c79a7b39a764e4394a36688da4621c3a00158b2
+rn6	https://hgdownload.soe.ucsc.edu/goldenPath/rn6/bigZips/rn6.fa.gz	4a564948ecf93e64ebb1e347cf66731c5b3393eb7f8ff06d0ff2dad5165ca021
+susScr11	https://hgdownload.soe.ucsc.edu/goldenPath/susScr11/bigZips/susScr11.fa.gz	bb36b88003a124d67da76daf497380a1f8c33b269c63ce8568a9f318fc747a82
+xenLae2	https://hgdownload.soe.ucsc.edu/goldenPath/xenLae2/bigZips/xenLae2.fa.gz	e415fa69e7f41204a427d4351892ac2540f5a5a1b421bdc7fc8e9f8d8946730b
+xenTro7	https://hgdownload.soe.ucsc.edu/goldenPath/xenTro7/bigZips/xenTro7.fa.gz	008f4e0b4416faa48ae6e1bebb594ea5fd7201e30d451e54e8186c3ccbd08f14
+xenTro9	https://hgdownload.soe.ucsc.edu/goldenPath/xenTro9/bigZips/xenTro9.fa.gz	3bb0ba288534c26072b7a5f6c862dabb2efd61d0bbb8962cc7cfa9b0dddaf413

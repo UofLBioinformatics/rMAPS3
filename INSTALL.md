@@ -47,6 +47,34 @@ Important:
 - folder name must match genome build
 - FASTA filename must match build (`<build>.fa`)
 
+Recommended: fetch genomes via scripts instead of committing FASTA files.
+
+Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/fetch_genomes.ps1 -Genomes dm3
+```
+
+Linux/macOS:
+
+```bash
+bash scripts/fetch_genomes.sh --genomes dm3
+```
+
+Manifest:
+- `scripts/genomes.manifest.tsv`
+- includes source URLs and SHA256 values
+
+Download sources:
+- UCSC goldenPath FASTA archives:
+  - `https://hgdownload.soe.ucsc.edu/goldenPath/<genome>/bigZips/<genome>.fa.gz`
+- EnsemblPlants FASTA archives (used for plant assemblies in manifest):
+  - `https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/.../*.fa.gz`
+
+Output location:
+- defaults to `RMAPS_FASTA_ROOT` when set
+- otherwise defaults to `genomedata/`
+
 ## 5. Verify Web UI (Optional)
 
 ```bash

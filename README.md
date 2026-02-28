@@ -42,6 +42,8 @@ Important:
 - Build name and FASTA name must match (`<build>/<build>.fa`).
 - If you run with `--genome hg19`, the loader uses `genomedata/hg19/hg19.fa`.
 
+For reproducible genome setup (download scripts + SHA256 manifest), see [`INSTALL.md`](INSTALL.md).
+
 ## Project Structure
 
 - `cli.py`: primary user entrypoint

@@ -1,5 +1,7 @@
 # Quickstart
 
+Genome fetch/setup is documented in `INSTALL.md`.
+
 ## 1) Run an SE analysis from rMATS
 
 ```bash
