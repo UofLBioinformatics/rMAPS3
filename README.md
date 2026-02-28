@@ -125,6 +125,3 @@ Note: shell test runners under `tests/` require a Bash-compatible environment (L
 - MISO conversion fails:
   - Ensure Perl is installed and available in `PATH`.
   - Verify `bin/miso2rMATS.*.pl` scripts exist.
-- PNG files missing:
-  - Native Ghostscript export may be unavailable.
-  - Install optional rendering dependencies from `requirements.txt`.
