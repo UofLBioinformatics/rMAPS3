@@ -16,6 +16,7 @@ A Python 3 refactor of the original rMAPS motif-mapping pipeline.
 - Python 3.10+ recommended
 - OS: Linux/macOS/Windows
 - Perl available on `PATH` for MISO conversion (`miso2rMATS*.pl`)
+- Flask for Web UI (`run_web.py`)
 - Optional Ghostscript for native PNG export (not required with Python fallback)
 
 Install dependencies:
@@ -53,32 +54,9 @@ Important:
 
 ## CLI Usage
 
-Top-level help:
+CLI reference is documented in:
 
-```bash
-python cli.py --help
-```
-
-Motif-map help:
-
-```bash
-python cli.py motif-map --help
-python cli.py motif-map se --help
-```
-
-Converters:
-
-```bash
-python cli.py convert --help
-python cli.py convert miso --help
-```
-
-Exon sets:
-
-```bash
-python cli.py exon-sets --help
-python cli.py exon-sets se --help
-```
+- [`CLI_USAGE.md`](CLI_USAGE.md)
 
 ## Web UI (Local)
 
@@ -92,64 +70,9 @@ Open:
 
 - `http://127.0.0.1:5000`
 
-### Web UI Features
+Full Web UI documentation is in:
 
-- Submit motif-map jobs for `SE`, `A3SS`, `A5SS`, `RI`, `MXE`
-- Input modes:
-  - rMATS upload
-  - MISO upload
-  - user coordinate files (`up`, `down`, `bg`)
-- Live job status and live run logs
-- One-click local test job
-- Result file listing per job output folder
-
-### Web UI Environment Variables
-
-- `RMAPS_FASTA_ROOT`: FASTA root directory (default: `genomedata/`)
-- `RMAPS_RESULTS_DIR`: job output directory (default: `results/`)
-- `RMAPS_QUICKTEST_DIR`: one-click test data directory (default: `testData/`)
-
-### Example: SE Motif Map from rMATS
-
-```bash
-python cli.py motif-map se \
-  --known-motifs data/knownMotifs.human.mouse.txt \
-  --motifs data/ESRP.like.motif.txt \
-  --fasta-root genomedata \
-  --genome hg19 \
-  --output temp/example_se \
-  --rMATS testData/SE.MATS.ReadsOnTargetAndJunctionCounts.txt \
-  --miso NA \
-  --up NA --down NA --background NA
-```
-
-### Example: SE Motif Map from MISO
-
-```bash
-python cli.py motif-map se \
-  --known-motifs data/knownMotifs.human.mouse.txt \
-  --motifs data/ESRP.like.motif.txt \
-  --fasta-root genomedata \
-  --genome hg19 \
-  --output temp/example_se_miso \
-  --rMATS NA \
-  --miso testData/ESRP.OE.miso_bf \
-  --up NA --down NA --background NA
-```
-
-### Example: A3SS Event
-
-```bash
-python cli.py motif-map a3ss \
-  --known-motifs data/testMotifs.txt \
-  --motifs NA \
-  --fasta-root genomedata \
-  --genome mm10 \
-  --output temp/example_a3ss \
-  --rMATS temp/A3SS.MATS.ReadsOnTargetAndJunctionCounts.txt \
-  --miso NA \
-  --up NA --down NA --background NA
-```
+- [`webui/README.md`](webui/README.md)
 
 ## Outputs
 
@@ -178,6 +101,16 @@ Full event matrix:
 bash tests/run_all_events.sh
 ```
 
+Note: shell test runners under `tests/` require a Bash-compatible environment (Linux/macOS, WSL, or Git Bash on Windows).
+
+## Documentation
+
+- Installation: [`INSTALL.md`](INSTALL.md)
+- Quick start: [`QUICKSTART.md`](QUICKSTART.md)
+- CLI reference: [`CLI_USAGE.md`](CLI_USAGE.md)
+- Web UI usage and API: [`webui/README.md`](webui/README.md)
+- Test scripts and matrix: [`tests/README.md`](tests/README.md)
+
 ## Operational Notes
 
 - Use the CLI (`cli.py`) as the public interface.
@@ -195,4 +128,3 @@ bash tests/run_all_events.sh
 - PNG files missing:
   - Native Ghostscript export may be unavailable.
   - Install optional rendering dependencies from `requirements.txt`.
-

@@ -5,6 +5,7 @@ All maintained test-run shell scripts live in this `tests/` folder.
 ## Test data and prerequisites
 
 - Run test scripts from repository root.
+- Bash-compatible shell required for `.sh` runners (Linux/macOS, WSL, or Git Bash on Windows).
 - Install dependencies from `requirements.txt`.
 - Ensure Perl is available on `PATH` for MISO conversion tests (`miso2rMATS.*.pl`).
 - Ensure FASTA files exist under your selected `--fasta-root` with this layout:

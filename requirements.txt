@@ -3,7 +3,6 @@ Flask>=3.0
 pyfaidx>=0.8
 numpy
 scipy
-fisher
 pyx
 pypdfium2
 Pillow
