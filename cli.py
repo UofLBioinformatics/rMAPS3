@@ -6,6 +6,7 @@ import typer
 from rmaps_core.motif_map_core import miso_converter_script, run_subprocess, run_motif_map
 from rmaps_core.clip_core import run_clip_map
 from rmaps_core.stat_utils import supported_stat_methods
+from rmaps_core.version import APP_NAME, __version__
 
 
 app = typer.Typer(help="RNA motif maps, CLIP maps, and exon set utilities")
@@ -51,6 +52,25 @@ KEEP_TEMP_OPTION = typer.Option(
     "--keep-temp",
     help="Keep output/temp on successful runs (temp is always kept on failures).",
 )
+
+
+def version_callback(value: bool) -> None:
+    if value:
+        typer.echo(f"{APP_NAME} {__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        callback=version_callback,
+        is_eager=True,
+        help="Show rMAPS version and exit.",
+    ),
+) -> None:
+    pass
 
 
 def run_cmd(cmd: list[str]) -> None:

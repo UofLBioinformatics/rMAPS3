@@ -108,7 +108,7 @@ results/<job_id>/           or results/quicktest_<job_id>/
   clip jobs:
     exon/
     temp/
-    log.CLIPSeq3.0.0.txt
+    log.CLIPSeq3.0.1.txt
     *.RNAmap.txt
     *.pdf / *.eps
 ```
@@ -126,4 +126,3 @@ results/<job_id>/           or results/quicktest_<job_id>/
   - Hard refresh browser after JS updates (`Ctrl+F5`).
 - MISO run fails:
   - Ensure Perl is available in the server process `PATH`.
-

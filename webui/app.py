@@ -17,12 +17,14 @@ try:
     from rmaps_core.motif_map_core import EVENT_SPECS, run_motif_map
     from rmaps_core.clip_core import CLIP_EVENT_SPECS, run_clip_map
     from rmaps_core.stat_utils import normalize_stat_method
+    from rmaps_core.version import __version__
 except ModuleNotFoundError:
     # Allow running `python webui/app.py` directly.
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from rmaps_core.motif_map_core import EVENT_SPECS, run_motif_map
     from rmaps_core.clip_core import CLIP_EVENT_SPECS, run_clip_map
     from rmaps_core.stat_utils import normalize_stat_method
+    from rmaps_core.version import __version__
 
 LOGGER = logging.getLogger(__name__)
 SUPPORTED_GENOMES = {
@@ -49,6 +51,18 @@ SUPPORTED_GENOMES = {
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+def _clip_log_path(output_dir: Path) -> Path:
+    for filename in (
+        f"log.CLIPSeq{__version__}.txt",
+        "log.CLIPSeq3.0.0.txt",
+        "log.CLIPSeq3.txt",
+    ):
+        path = output_dir / filename
+        if path.exists():
+            return path
+    return output_dir / f"log.CLIPSeq{__version__}.txt"
 
 
 def _parse_rnamap_min_pvals(path: Path) -> dict[str, float]:
@@ -216,7 +230,7 @@ def register_routes(app: Flask) -> None:
         for path in candidates:
             if path.exists() and path.is_dir():
                 motif_log = path / "log.motifMap.txt"
-                clip_log = path / "log.CLIPSeq3.0.0.txt"
+                clip_log = _clip_log_path(path)
                 log_exists = motif_log.exists() or clip_log.exists()
                 analysis_type = "clip" if clip_log.exists() else "motif"
                 status = "completed" if log_exists else "unknown"
@@ -633,9 +647,7 @@ def register_routes(app: Flask) -> None:
         output_dir = Path(job["output_dir"])
         analysis_type = _normalize_analysis_type(job.get("analysis_type", "motif"))
         if analysis_type == "clip":
-            log_file = output_dir / "log.CLIPSeq3.0.0.txt"
-            if not log_file.exists():
-                log_file = output_dir / "log.CLIPSeq3.txt"
+            log_file = _clip_log_path(output_dir)
         else:
             log_file = output_dir / "log.motifMap.txt"
         max_lines = request.args.get("tail", default=120, type=int) or 120
@@ -760,7 +772,7 @@ def register_routes(app: Flask) -> None:
                         "folder": str(d),
                         "name": raw,
                         "mtime": datetime.fromtimestamp(d.stat().st_mtime).isoformat(),
-                        "has_log": (d / "log.motifMap.txt").exists() or (d / "log.CLIPSeq3.0.0.txt").exists(),
+                        "has_log": (d / "log.motifMap.txt").exists() or _clip_log_path(d).exists(),
                     }
                 )
         return jsonify({"success": True, "jobs": jobs}), 200

@@ -88,8 +88,7 @@ def main():
     bin_path = script_path / 'bin'
     
     # Setup logging
-    version = "3.0.0"
-    setup_logging(out_path, version)
+    setup_logging(out_path)
     logging.debug('Start the program with arguments: %s', ' '.join(sys.argv))
     start_time = time.time()
     

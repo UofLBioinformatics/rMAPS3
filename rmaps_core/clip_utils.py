@@ -13,6 +13,8 @@ import logging
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 
+from rmaps_core.version import __version__
+
 
 def _safe_float(value: str) -> float:
     """Parse numeric strings while tolerating NA-like values."""
@@ -34,7 +36,7 @@ def _mean_psi_field(field: str) -> float:
     return sum(values) / float(len(values))
 
 
-def setup_logging(output_path: Path, version: str = "3.0.0") -> None:
+def setup_logging(output_path: Path, version: str = __version__) -> None:
     """
     Configure logging for CLIP-seq analysis.
     

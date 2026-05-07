@@ -48,7 +48,7 @@ def main():
     script_path = Path(__file__).resolve().parent.parent
     bin_path = script_path / 'bin'
     
-    setup_logging(out_path, "3.0.0")
+    setup_logging(out_path)
     logging.debug('Start: %s', ' '.join(sys.argv))
     start_time = time.time()
     

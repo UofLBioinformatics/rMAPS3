@@ -12,6 +12,14 @@ python cli.py convert --help
 python cli.py exon-sets --help
 ```
 
+## Version
+
+```bash
+python cli.py --version
+```
+
+Include the reported version when sharing results, reporting issues, or documenting HPC/module runs.
+
 ## Motif Map Commands
 
 ### Supported Event Types
@@ -317,5 +325,4 @@ CLIP-map output typically includes:
 - `*.RNAmap.txt`
 - `*.pdf` / `*.eps`
 - `log.CLIPSeq*.txt`
-
 
