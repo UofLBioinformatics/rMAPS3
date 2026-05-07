@@ -110,7 +110,7 @@ def main():
     
     import subprocess
     cmd = [
-        sys.executable, str(bin_path / 'RNA.map.noWiggle.py'),
+        sys.executable, str(bin_path / 'RNA.map.noWiggle.A3SS.py'),
         str(exon_path), str(Path(args.peakFile).resolve()),
         str(args.intron), str(args.exon), str(args.window), str(args.step), str(args.sigFDR),
         args.label, str(out_path), str(nu), str(nd), str(nb), str(int(args.separate)), 'A3SS'

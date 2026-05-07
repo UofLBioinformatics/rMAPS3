@@ -1,5 +1,7 @@
 import os
 import shutil
+import csv
+import atexit
 
 from pyx import *
 
@@ -229,3 +231,153 @@ def export_canvas_outputs(canv,
                 "Pillow unavailable; PNG-to-PDF fallback unavailable.")
 
     return pdf_ok, png_ok
+
+
+def export_text_rnamap_fallback(out_dir,
+                                event_type,
+                                map_name,
+                                pdf_path,
+                                png_path,
+                                logger=None):
+    """Create a simple Pillow plot from combined.RNAmap.txt when PyX export fails."""
+    global Image
+
+    if Image is None:
+        try:
+            from PIL import Image as pillow_image
+            Image = pillow_image
+        except Exception as exc:
+            if logger:
+                logger.debug("Pillow fallback unavailable: %s", exc)
+            return False, False
+
+    try:
+        from PIL import ImageDraw, ImageFont
+    except Exception as exc:
+        if logger:
+            logger.debug("Pillow drawing fallback unavailable: %s", exc)
+        return False, False
+
+    data_path = os.path.join(out_dir, "combined.RNAmap.txt")
+    if not os.path.exists(data_path):
+        if logger:
+            logger.debug("RNA map text fallback input missing: %s", data_path)
+        return False, False
+
+    regions = []
+    values = {}
+    try:
+        with open(data_path, newline="") as handle:
+            reader = csv.DictReader(handle, delimiter="\t")
+            for row in reader:
+                region = row.get("Region", "")
+                if not region:
+                    continue
+                if region not in values:
+                    values[region] = {"up": [], "down": [], "bg": []}
+                    regions.append(region)
+                values[region]["up"].append(float(row["AverageRawPeakCount_up"]))
+                values[region]["down"].append(float(row["AverageRawPeakCount_down"]))
+                values[region]["bg"].append(
+                    float(row["AverageRawPeakCount_background"]))
+    except Exception as exc:
+        if logger:
+            logger.debug("Could not read RNA map text fallback data: %s", exc)
+        return False, False
+
+    if not regions:
+        return False, False
+
+    width = 1500
+    panel_h = 180
+    top = 90
+    bottom = 70
+    left = 90
+    right = 40
+    gap = 34
+    height = top + bottom + len(regions) * panel_h + (len(regions) - 1) * gap
+    image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+
+    colors = {
+        "up": (205, 45, 45),
+        "down": (45, 95, 205),
+        "bg": (35, 35, 35),
+    }
+
+    title = f"{event_type} RNA map: {map_name}"
+    draw.text((left, 24), title, fill=(20, 20, 20), font=font)
+    legend_x = width - 355
+    for idx, (name, color_value) in enumerate(
+            [("Up", colors["up"]), ("Down", colors["down"]),
+             ("Background", colors["bg"])]):
+        y = 25 + idx * 20
+        draw.line((legend_x, y + 7, legend_x + 32, y + 7),
+                  fill=color_value,
+                  width=3)
+        draw.text((legend_x + 42, y), name, fill=(20, 20, 20), font=font)
+
+    plot_w = width - left - right
+    for region_index, region in enumerate(regions):
+        y0 = top + region_index * (panel_h + gap)
+        y1 = y0 + panel_h
+        all_vals = (
+            values[region]["up"] + values[region]["down"] +
+            values[region]["bg"])
+        max_val = max(all_vals) if all_vals else 1.0
+        if max_val <= 0:
+            max_val = 1.0
+
+        draw.rectangle((left, y0, width - right, y1), outline=(210, 210, 210))
+        draw.text((16, y0 + 6), region[:32], fill=(20, 20, 20), font=font)
+        draw.text((left, y0 - 16), f"{max_val:.2f}", fill=(90, 90, 90),
+                  font=font)
+        draw.text((left, y1 + 2), "0", fill=(90, 90, 90), font=font)
+
+        for series_name in ("bg", "down", "up"):
+            series = values[region][series_name]
+            if len(series) < 2:
+                continue
+            points = []
+            denom = max(1, len(series) - 1)
+            for idx, val in enumerate(series):
+                x = left + int((idx / float(denom)) * plot_w)
+                y = y1 - int((val / max_val) * (panel_h - 18)) - 9
+                points.append((x, y))
+            draw.line(points, fill=colors[series_name], width=2)
+
+    png_ok = False
+    pdf_ok = False
+    try:
+        image.save(png_path, format="PNG")
+        png_ok = True
+    except Exception as exc:
+        if logger:
+            logger.debug("Pillow RNA map PNG fallback failed: %s", exc)
+
+    try:
+        image.save(pdf_path, format="PDF")
+        pdf_ok = True
+    except Exception as exc:
+        if logger:
+            logger.debug("Pillow RNA map PDF fallback failed: %s", exc)
+
+    return pdf_ok, png_ok
+
+
+def suppress_pyx_text_cleanup(logger=None):
+    """Avoid a second TeX timeout during PyX atexit cleanup after TeX failure."""
+    try:
+        engine = getattr(text, "defaulttextengine", None)
+        instance = getattr(engine, "instance", None)
+        cleanup = getattr(instance, "_cleanup", None)
+        if cleanup is not None:
+            atexit.unregister(cleanup)
+            if logger:
+                logger.debug("Suppressed PyX text cleanup after TeX failure")
+            return True
+    except Exception as exc:
+        if logger:
+            logger.debug("Could not suppress PyX text cleanup: %s", exc)
+    return False

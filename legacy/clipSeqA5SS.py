@@ -187,7 +187,7 @@ def main():
     logging.debug("=" * 50)
     logging.debug("GENERATING RNA MAP")
     
-    rna_map_script = bin_path / 'RNA.map.noWiggle.py'
+    rna_map_script = bin_path / 'RNA.map.noWiggle.A5SS.py'
     
     # Build command
     cmd = [
