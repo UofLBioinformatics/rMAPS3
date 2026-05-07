@@ -57,6 +57,16 @@ python -m pip install -r requirements.txt
 
 ## Documentation
 
+The original rMAPS web help content has been preserved and adapted in the user guide, FAQ, and RBP motif table below.
+
+Original web help:
+
+- User guide and input formats: [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md)
+- Curated RBP motif table: [`docs/RBP_MOTIFS.md`](docs/RBP_MOTIFS.md)
+- FAQ: [`docs/FAQ.md`](docs/FAQ.md)
+
+rMAPS3 docs:
+
 - Installation and genome setup: [`docs/INSTALL.md`](docs/INSTALL.md)
 - Full CLI reference and event-type details: [`docs/CLI_USAGE.md`](docs/CLI_USAGE.md)
 - Web UI usage and API: [`webui/README.md`](webui/README.md)
@@ -128,7 +138,4 @@ Open `http://127.0.0.1:5000`.
 
 ## Troubleshooting
 
-- `FastaNotFoundError`: verify `--genome` and `--fasta-root` match `<build>/<build>.fa`.
-- MISO conversion failures: ensure Perl is installed and `bin/miso2rMATS.*.pl` exists.
-- Missing CLIP plots: ensure input yields non-empty up/down/background event groups.
-
+See [`docs/FAQ.md`](docs/FAQ.md) for common setup and runtime issues.
