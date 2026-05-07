@@ -90,7 +90,7 @@ The script automatically:
 - Decompresses `.fa.gz` → `.fa`
 - Creates `<build>/<build>.fa` structure
 
-Available genomes: `hg19`, `hg38`, `mm10`, `dm3`, `dm6`, `rn6`, `galGal5`, `galGal6`, `danRer10`, `danRer11`, `ce11`, `xenLae2`, `xenTro7`, `xenTro9`, `bosTau9`, `susScr11`, `araTha1`, `oSa7`
+Available genomes: `hg19`, `hg38`, `mm10`, `dm3`, `dm6`, `rn6`, `rn7`, `galGal5`, `galGal6`, `danRer10`, `danRer11`, `ce11`, `xenLae2`, `xenTro7`, `xenTro9`, `bosTau9`, `susScr11`, `araTha1`, `oSa7`
 
 For complete list with URLs and verification hashes, see `scripts/genomes.manifest.tsv`
 

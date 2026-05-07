@@ -35,6 +35,7 @@ SUPPORTED_GENOMES = {
     "dm6": {"organism": "Drosophila melanogaster", "default": False},
     "dm3": {"organism": "Drosophila melanogaster", "default": False},
     "rn6": {"organism": "Rattus norvegicus", "default": False},
+    "rn7": {"organism": "Rattus norvegicus", "default": False},
     "ce11": {"organism": "Caenorhabditis elegans", "default": False},
     "danRer10": {"organism": "Danio rerio", "default": False},
     "danRer11": {"organism": "Danio rerio", "default": False},
