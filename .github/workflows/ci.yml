@@ -38,6 +38,9 @@ jobs:
       - name: CLI smoke tests
         run: python tests/smoke_cli.py
 
+      - name: Path handling tests
+        run: python tests/test_path_handling.py
+
       - name: CLIP tests (SE + A5SS)
         run: python tests/test_clip.py --event se a5ss
 

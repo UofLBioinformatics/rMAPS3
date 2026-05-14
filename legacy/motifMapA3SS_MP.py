@@ -13,6 +13,11 @@ from rmaps_core import drawutils
 from rmaps_core.genome_access import load_genome, fetch_seq as fetch_seq_from_fasta
 from rmaps_core.stat_utils import normalize_stat_method, pvalue_header_label
 
+DRAW_MOTIF_PLOTS = (
+    os.environ.get("RMAPS_FORCE_MOTIF_FALLBACK") != "1"
+    and drawutils.use_unicode_text_engine()
+)
+
 def run_command(cmd):
     completed = subprocess.run(cmd, capture_output=True, text=True)
     status = completed.returncode
@@ -1329,7 +1334,7 @@ def minPvalueOut(exonType):
         pValR06Chunk.sort()
         pValR07Chunk.sort()
         pValR08Chunk.sort()
-        fileName = fN.strip().split('/')[-1]
+        fileName = os.path.basename(fN.strip())
         pValList.append([
             fileName[:-18], bucket_min(pValR01Chunk), bucket_min(pValR02Chunk), bucket_min(pValR03Chunk),
             bucket_min(pValR04Chunk), bucket_min(pValR05Chunk), bucket_min(pValR06Chunk), bucket_min(pValR07Chunk),
@@ -1376,6 +1381,65 @@ def _make_individual_map_worker(line):
     d = []
     makeIndividualMaps(d, line)
     return d[0] if d else None
+
+
+def maybe_plot_motif_map(mapname, maxPointValue, maxNegPval, drawPoints,
+                         negPvalPoints, separate=False, out_dir=None, event_type=None):
+    def write_fallback(reason):
+        logging.warning("%s; attempting motif fallback plot for %s", reason,
+                        mapname)
+        if out_dir and event_type:
+            safe_map_name = re.sub(r'[^A-Za-z0-9._-]+', '_', mapname)
+            pdf_path = os.path.join(out_dir, 'maps',
+                                    f'{event_type}.{safe_map_name}.pdf')
+            png_path = os.path.join(out_dir, 'maps',
+                                    f'{event_type}.{safe_map_name}.png')
+            try:
+                pdf_ok, png_ok = drawutils.export_motif_map_fallback(
+                    event_type, mapname, drawPoints, negPvalPoints,
+                    maxPointValue, maxNegPval, pdf_path, png_path,
+                    logger=logging)
+                if pdf_ok or png_ok:
+                    logging.info(
+                        "Motif fallback plot generated for %s (PDF: %s, PNG: %s)",
+                        mapname, pdf_ok, png_ok)
+                else:
+                    logging.warning(
+                        "Motif fallback plot failed for %s; text outputs only",
+                        mapname)
+            except Exception as exc:
+                logging.warning(
+                    "Exception in motif fallback plot for %s: %s", mapname, exc)
+
+    if not DRAW_MOTIF_PLOTS:
+        write_fallback("PyX text fonts unavailable")
+        return
+    try:
+        plotMotifs_finale(mapname, maxPointValue, maxNegPval, drawPoints,
+                          negPvalPoints, separate)
+    except Exception as exc:
+        logging.warning("Could not draw motif plot for %s: %s", mapname, exc)
+        drawutils.suppress_pyx_text_cleanup(logging)
+        write_fallback("PyX motif plot failed")
+
+
+def run_individual_map_workers(lines):
+    worker_state = _build_worker_state()
+    worker_count = max(1, multiprocessing.cpu_count() - 1)
+    try:
+        with multiprocessing.get_context("spawn").Pool(
+                processes=worker_count,
+                initializer=_init_worker,
+                initargs=(worker_state, )) as pool:
+            results = pool.map(_make_individual_map_worker, lines)
+    except PermissionError:
+        logging.warning(
+            "Multiprocessing pool unavailable; falling back to serial motif map generation"
+        )
+        _init_worker(worker_state)
+        results = [_make_individual_map_worker(line) for line in lines]
+    return [r for r in results if r is not None]
+
 
 def run_pipeline():
     global genome, start, uNum, dNum, bNum, tHeader
@@ -1442,19 +1506,13 @@ def run_pipeline():
         tHeader = kFile.readline().strip()
 
         known_lines = [line for line in kFile]
-        worker_state = _build_worker_state()
-        worker_count = max(1, multiprocessing.cpu_count() - 1)
-        with multiprocessing.get_context("spawn").Pool(
-                processes=worker_count,
-                initializer=_init_worker,
-                initargs=(worker_state, )) as pool:
-            d = [r for r in pool.map(_make_individual_map_worker, known_lines) if r is not None]
+        d = run_individual_map_workers(known_lines)
 
         for i in range(len(d)):
 
             [mapname, maxPointValue, maxNegPval, drawPoints, negPvalPoints] = d[i]
-            plotMotifs_finale(mapname, maxPointValue, maxNegPval, drawPoints,
-                              negPvalPoints, args.separate)
+            maybe_plot_motif_map(mapname, maxPointValue, maxNegPval, drawPoints,
+                                 negPvalPoints, args.separate, outPath, 'A3SS')
 
         stop = timeit.default_timer()
         print(stop - start)
@@ -1463,20 +1521,14 @@ def run_pipeline():
             tHeader = mFile.readline().strip()
 
             motif_lines = [line2 for line2 in mFile]
-            worker_state = _build_worker_state()
-            worker_count = max(1, multiprocessing.cpu_count() - 1)
-            with multiprocessing.get_context("spawn").Pool(
-                    processes=worker_count,
-                    initializer=_init_worker,
-                    initargs=(worker_state, )) as pool:
-                d2 = [r for r in pool.map(_make_individual_map_worker, motif_lines) if r is not None]
+            d2 = run_individual_map_workers(motif_lines)
 
             for i in range(len(d2)):
 
                 [mapname, maxPointValue, maxNegPval, drawPoints,
                  negPvalPoints] = d2[i]
-                plotMotifs_finale(mapname, maxPointValue, maxNegPval, drawPoints,
-                                  negPvalPoints)
+                maybe_plot_motif_map(mapname, maxPointValue, maxNegPval,
+                                     drawPoints, negPvalPoints, False, outPath, 'A3SS')
 
         pass
 

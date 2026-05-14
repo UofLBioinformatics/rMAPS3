@@ -6,15 +6,15 @@ from typing import Dict
 
 import sys
 import subprocess
-import os
 import shutil
 
 from rmaps_core.input_utils import maybe_prepare_rmats_input
+from rmaps_core.path_utils import build_subprocess_env, repo_root, resolve_user_path
 from rmaps_core.stat_utils import normalize_stat_method
 
 
 PYTHON = sys.executable
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = repo_root()
 
 
 @dataclass(frozen=True)
@@ -81,17 +81,16 @@ def miso_converter_script(event: str) -> Path:
     return REPO_ROOT / EVENT_SPECS[key].miso_converter
 
 
-def run_subprocess(cmd: list[str], env_overrides: dict[str, str] | None = None) -> int:
+def run_subprocess(
+    cmd: list[str],
+    env_overrides: dict[str, str] | None = None,
+    base_cwd: Path | None = None,
+) -> int:
     """
     Shared helper for launching child processes from this project.
     """
-    env = dict(os.environ)
-    if env_overrides:
-        env.update(env_overrides)
-    repo_root = str(REPO_ROOT)
-    existing = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = repo_root if not existing else f"{repo_root}{os.pathsep}{existing}"
-    result = subprocess.run(cmd, cwd=REPO_ROOT, env=env)
+    env = build_subprocess_env(REPO_ROOT, env_overrides)
+    result = subprocess.run(cmd, cwd=base_cwd or Path.cwd(), env=env)
     return result.returncode
 
 
@@ -119,6 +118,7 @@ def run_motif_map(
     stat_permutations: int | None = None,
     stat_seed: int | None = None,
     keep_temp: bool = False,
+    base_cwd: Path | None = None,
 ) -> int:
     """
     Build and run the legacy motifMap* script for a given event type.
@@ -128,17 +128,26 @@ def run_motif_map(
     """
     script_path = event_script(event)
     stat_method = normalize_stat_method(stat_method)
-    output = Path(output)
+    base_cwd = base_cwd or Path.cwd()
+    known_motifs = resolve_user_path(known_motifs, base_cwd)
+    motifs = resolve_user_path(motifs, base_cwd)
+    fasta_root = resolve_user_path(fasta_root, base_cwd)
+    output = Path(resolve_user_path(output, base_cwd))
+    rmats = resolve_user_path(rmats, base_cwd)
+    miso = resolve_user_path(miso, base_cwd)
+    up = resolve_user_path(up, base_cwd)
+    down = resolve_user_path(down, base_cwd)
+    background = resolve_user_path(background, base_cwd)
     rmats = maybe_prepare_rmats_input(rmats, output)
     cmd: list[str] = [
         PYTHON,
         str(script_path),
         "-k",
-        str(known_motifs),
+        known_motifs,
         "-m",
         motifs,
         "--fasta-root",
-        str(fasta_root),
+        fasta_root,
         "-g",
         genome,
         "-o",
@@ -177,7 +186,7 @@ def run_motif_map(
     if stat_seed is not None:
         env_overrides["RMAPS_STAT_SEED"] = str(stat_seed)
 
-    code = run_subprocess(cmd, env_overrides)
+    code = run_subprocess(cmd, env_overrides, base_cwd=base_cwd)
 
     # Keep temp data on failure for debugging; clean on success unless requested.
     if code == 0 and not keep_temp:

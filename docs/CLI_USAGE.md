@@ -20,6 +20,14 @@ python cli.py --version
 
 Include the reported version when sharing results, reporting issues, or documenting HPC/module runs.
 
+Use `python cli.py ...` for the most portable invocation. On Linux/macOS, `./cli.py ...` also works when your active environment has the required Python packages.
+
+Path rule: relative input and output paths are resolved from the directory where you run the command. Absolute paths are used as-is, and `NA` still means "no file" for optional inputs. See [`INSTALL.md`](INSTALL.md) for shared-HPC setup notes.
+
+Motif plotting uses PyX when available. On systems without TeX/PyX fonts,
+rMAPS3 falls back to simplified Pillow-rendered motif-map PDFs/PNGs. Set
+`RMAPS_FORCE_MOTIF_FALLBACK=1` to test that fallback path explicitly.
+
 ## Motif Map Commands
 
 ### Supported Event Types
@@ -325,4 +333,3 @@ CLIP-map output typically includes:
 - `*.RNAmap.txt`
 - `*.pdf` / `*.eps`
 - `log.CLIPSeq*.txt`
-

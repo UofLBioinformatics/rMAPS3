@@ -30,7 +30,9 @@ python -m pip install -r requirements.txt
 
 Optional system dependencies (not installed via `pip`):
 
-- MiKTeX or TeX Live: improves PyX text rendering in motif-map outputs
+- MiKTeX or TeX Live: improves PyX text rendering in motif-map outputs.
+  If TeX fonts are unavailable, rMAPS3 falls back to simplified Pillow-based
+  motif-map PDF/PNG rendering.
 - Ghostscript: enables native PNG export path
 
 ## 3. Prepare Genome FASTA Data
@@ -118,7 +120,34 @@ python cli.py convert --help
 python cli.py exon-sets --help
 ```
 
-## 5. Optional: Start Local Web UI
+## 5. Shared HPC / Read-Only Installs
+
+rMAPS3 can be installed once in a shared location and run from a separate working directory, such as a scratch or job directory.
+
+Recommended pattern:
+
+```bash
+cd /scratch/$USER/rmaps-job-001
+python /path/to/rMAPS3/cli.py motif-map se \
+  --known-motifs /path/to/rMAPS3/data/knownMotifs.human.mouse.txt \
+  --motifs NA \
+  --fasta-root /shared/genomedata \
+  --genome hg38 \
+  --output ./results/motif_se \
+  --rMATS ./inputs/SE.MATS.JC.txt \
+  --miso NA --up NA --down NA --background NA
+```
+
+Path behavior:
+- rMAPS3 auto-detects its installed repository/package location for internal scripts.
+- Relative user input and output paths are resolved from the directory where you run the command.
+- Absolute paths are used as-is.
+- Optional file arguments still accept `NA`.
+- Child processes run from the user's invocation directory, not the installed repository directory.
+
+This avoids writing job outputs into a shared or read-only rMAPS3 installation.
+
+## 6. Optional: Start Local Web UI
 
 Run local web UI:
 
@@ -128,7 +157,7 @@ python run_web.py
 
 Then open `http://127.0.0.1:5000`.
 
-## 6. Next Docs
+## 7. Next Docs
 
 - CLI examples and command reference: [`CLI_USAGE.md`](CLI_USAGE.md)
 - Web UI details: [`../webui/README.md`](../webui/README.md)

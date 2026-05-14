@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 from pathlib import Path
 
@@ -5,6 +7,7 @@ import typer
 
 from rmaps_core.motif_map_core import miso_converter_script, run_subprocess, run_motif_map
 from rmaps_core.clip_core import run_clip_map
+from rmaps_core.path_utils import repo_root, resolve_user_path
 from rmaps_core.stat_utils import supported_stat_methods
 from rmaps_core.version import APP_NAME, __version__
 
@@ -21,7 +24,7 @@ app.add_typer(clip_app, name="clip-map")
 app.add_typer(convert_app, name="convert")
 app.add_typer(exon_app, name="exon-sets")
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = repo_root()
 PYTHON = sys.executable
 
 SUPPORTED_STAT_METHODS = ", ".join(supported_stat_methods())
@@ -73,11 +76,11 @@ def main(
     pass
 
 
-def run_cmd(cmd: list[str]) -> None:
+def run_cmd(cmd: list[str], base_cwd: Path | None = None) -> None:
     """
-    Run a subprocess in the repository root and exit with its return code.
+    Run a subprocess and exit with its return code.
     """
-    code = run_subprocess(cmd)
+    code = run_subprocess(cmd, base_cwd=base_cwd or Path.cwd())
     raise typer.Exit(code=code)
 
 
@@ -728,6 +731,7 @@ def convert_miso(
     """
     Run the appropriate Perl miso2rMATS converter directly.
     """
+    base_cwd = Path.cwd()
     event_l = event.lower()
     try:
         script = miso_converter_script(event_l)
@@ -739,10 +743,10 @@ def convert_miso(
         str(script),
         str(bayes_low),
         str(bayes_high),
-        str(miso),
-        str(output),
+        resolve_user_path(miso, base_cwd),
+        resolve_user_path(output, base_cwd),
     ]
-    run_cmd(cmd)
+    run_cmd(cmd, base_cwd=base_cwd)
 
 
 #
@@ -764,16 +768,17 @@ def exon_sets_se(
     """
     Build up/down/background SE exon sets using getExonSets.py.
     """
+    base_cwd = Path.cwd()
     script = REPO_ROOT / "bin" / "getExonSets.py"
     cmd = [
         PYTHON,
         str(script),
-        str(input_file),
+        resolve_user_path(input_file, base_cwd),
         sample1,
         sample2,
-        str(out_dir),
+        resolve_user_path(out_dir, base_cwd),
     ]
-    run_cmd(cmd)
+    run_cmd(cmd, base_cwd=base_cwd)
 
 
 if __name__ == "__main__":

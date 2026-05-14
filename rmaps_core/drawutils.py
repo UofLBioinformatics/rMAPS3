@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import csv
 import atexit
@@ -7,6 +8,41 @@ from pyx import *
 
 pdfium = None
 Image = None
+
+
+class RmapsUnicodeEngine(text.UnicodeEngine):
+    """Unicode text engine that tolerates legacy PyX text attributes."""
+
+    def text_pt(self,
+                x_pt,
+                y_pt,
+                text_value,
+                textattrs=[],
+                texmessages=[],
+                fontmap=None,
+                singlecharmode=False):
+        merged = attr.mergeattrs(textattrs)
+        supported = attr.getattrs(merged, [trafo.trafo_pt, style.fillstyle])
+        return super().text_pt(
+            x_pt,
+            y_pt,
+            text_value,
+            supported,
+            texmessages=texmessages,
+            fontmap=fontmap,
+            singlecharmode=singlecharmode,
+        )
+
+
+def use_unicode_text_engine(logger=None):
+    """Use a non-TeX PyX text engine for environments where TeX is blocked."""
+    try:
+        text.set(RmapsUnicodeEngine)
+    except Exception as exc:
+        if logger:
+            logger.warning("PyX Unicode text engine unavailable: %s", exc)
+        return False
+    return True
 
 
 def boxes(xS, width, scale, boxY, box_height, splice_offset):
@@ -362,6 +398,146 @@ def export_text_rnamap_fallback(out_dir,
     except Exception as exc:
         if logger:
             logger.debug("Pillow RNA map PDF fallback failed: %s", exc)
+
+    return pdf_ok, png_ok
+
+
+def export_motif_map_fallback(event_type,
+                              map_name,
+                              draw_points,
+                              neg_pval_points,
+                              max_point_value,
+                              max_neg_pval,
+                              pdf_path,
+                              png_path,
+                              logger=None):
+    """Create a simple motif-map PDF/PNG when PyX font rendering is unavailable."""
+    global Image
+
+    if Image is None:
+        try:
+            from PIL import Image as pillow_image
+            Image = pillow_image
+        except Exception as exc:
+            if logger:
+                logger.debug("Pillow motif fallback unavailable: %s", exc)
+            return False, False
+
+    try:
+        from PIL import ImageDraw, ImageFont
+    except Exception as exc:
+        if logger:
+            logger.debug("Pillow motif drawing fallback unavailable: %s", exc)
+        return False, False
+
+    try:
+        os.makedirs(os.path.dirname(png_path), exist_ok=True)
+        os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+    except Exception:
+        pass
+
+    region_count = len(draw_points)
+    if region_count == 0:
+        return False, False
+
+    max_point_value = max(float(max_point_value or 0), 1e-12)
+    max_neg_pval = max(float(max_neg_pval or 0), 1e-12)
+    width = max(1100, region_count * 185 + 180)
+    height = 520
+    left = 70
+    right = 35
+    top = 95
+    score_top = top
+    score_bottom = 300
+    pval_top = 345
+    pval_bottom = 455
+    gap = 10
+    panel_width = max(60, int((width - left - right - gap * (region_count - 1)) / region_count))
+
+    image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+
+    colors = {
+        "up": (210, 45, 45),
+        "down": (45, 85, 215),
+        "bg": (40, 40, 40),
+        "grid": (215, 215, 215),
+    }
+
+    safe_title = re.sub(r"\s+", " ", str(map_name))[:120]
+    draw.text((left, 24), f"{event_type} motif map: {safe_title}",
+              fill=(20, 20, 20), font=font)
+    legend_items = [("Up", colors["up"]), ("Down", colors["down"]),
+                    ("Background", colors["bg"]),
+                    ("-log10 p up", colors["up"]),
+                    ("-log10 p down", colors["down"])]
+    legend_x = left
+    for label, color_value in legend_items:
+        y = 58
+        draw.line((legend_x, y + 7, legend_x + 32, y + 7),
+                  fill=color_value, width=3)
+        draw.text((legend_x + 38, y), label, fill=(30, 30, 30), font=font)
+        legend_x += 130
+
+    draw.text((8, score_top + 60), "Motif score", fill=(80, 80, 80), font=font)
+    draw.text((8, pval_top + 35), "-log10(p)", fill=(80, 80, 80), font=font)
+
+    def y_from_value(value, max_value, y0, y1):
+        frac = max(0.0, min(1.0, float(value) / max_value))
+        return y1 - int(frac * (y1 - y0))
+
+    def series_points(series, series_index, x0, x1, y0, y1, max_value):
+        if len(series) < 2:
+            return []
+        denom = max(1, len(series) - 1)
+        points = []
+        for index, values in enumerate(series):
+            x = x0 + int((index / float(denom)) * (x1 - x0))
+            points.append((x, y_from_value(values[series_index], max_value, y0, y1)))
+        return points
+
+    for region_index, region_points in enumerate(draw_points):
+        x0 = left + region_index * (panel_width + gap)
+        x1 = x0 + panel_width
+        for y0, y1 in ((score_top, score_bottom), (pval_top, pval_bottom)):
+            draw.rectangle((x0, y0, x1, y1), outline=colors["grid"])
+            draw.line((x0, (y0 + y1) // 2, x1, (y0 + y1) // 2),
+                      fill=colors["grid"])
+        draw.text((x0 + 4, score_bottom + 8), f"R{region_index + 1}",
+                  fill=(80, 80, 80), font=font)
+
+        for series_index, name in enumerate(("up", "down", "bg")):
+            points = series_points(region_points, series_index, x0, x1,
+                                   score_top + 8, score_bottom - 8,
+                                   max_point_value)
+            if len(points) >= 2:
+                draw.line(points, fill=colors[name], width=2)
+
+        if region_index < len(neg_pval_points):
+            pval_region = neg_pval_points[region_index]
+            for series_index, name in enumerate(("up", "down")):
+                points = series_points(pval_region, series_index, x0, x1,
+                                       pval_top + 8, pval_bottom - 8,
+                                       max_neg_pval)
+                if len(points) >= 2:
+                    draw.line(points, fill=colors[name], width=1)
+
+    png_ok = False
+    pdf_ok = False
+    try:
+        image.save(png_path, format="PNG")
+        png_ok = True
+    except Exception as exc:
+        if logger:
+            logger.debug("Pillow motif PNG fallback failed: %s", exc)
+
+    try:
+        image.save(pdf_path, format="PDF")
+        pdf_ok = True
+    except Exception as exc:
+        if logger:
+            logger.debug("Pillow motif PDF fallback failed: %s", exc)
 
     return pdf_ok, png_ok
 
